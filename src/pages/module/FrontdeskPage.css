@@ -1,0 +1,510 @@
+/* ===== LAYOUT: sidebar (left) + content (right) ===== */
+html, body, #root { height: 100%; }
+.page {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Sidebar column - with collapse functionality */
+.frontdesk-sidebar {
+  width: 260px;
+  background: #0f172a;
+  color: #fff;
+  border-right: 1px solid #1e293b;
+  position: relative;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s ease, margin-left 0.3s ease;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.frontdesk-sidebar.collapsed {
+  width: 70px;
+}
+
+/* Hide text content when sidebar is collapsed */
+.frontdesk-sidebar.collapsed .sidebar-text,
+.frontdesk-sidebar.collapsed .sidebar-label,
+.frontdesk-sidebar.collapsed .nav-text {
+  opacity: 0;
+  display: none;
+}
+
+/* Main content column */
+.frontdesk-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  background: #f5f7fa;
+  position: relative;
+  transition: margin-left 0.3s ease;
+}
+
+.frontdesk-wrap.sidebar-collapsed {
+  /* Can add additional styling if needed */
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1001;
+  background: rgba(15, 23, 42, 0.9);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.toggle-icon {
+  font-size: 20px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.toggle-icon.collapsed {
+  transform: rotate(180deg);
+}
+
+/* Stack on small screens */
+@media (max-width: 1024px) {
+  .page { flex-direction: column; }
+  .frontdesk-sidebar {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .frontdesk-sidebar.collapsed {
+    width: 100%;
+    height: 60px;
+  }
+  .sidebar-toggle-btn {
+    top: 10px;
+    left: 10px;
+  }
+}
+
+/* ==================== TOPBAR ==================== */
+.frontdesk-topbar {
+  background: linear-gradient(135deg, #003d5c 0%, #0a5a7f 100%);
+  color: white;
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 50px;
+}
+
+.topbar-left { display: flex; align-items: center; }
+
+.welcome-text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+}
+
+.branch-info,
+.user-info,
+.date-info,
+.session-info {
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+}
+
+.admin-btn {
+  background: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.admin-btn:hover {
+  background: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.topbar-actions { display: flex; gap: 8px; }
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+.icon-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
+
+/* ==================== DASHBOARD CONTROL ==================== */
+.dashboard-control {
+  background: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.change-dashboard-btn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: all 0.3s ease;
+}
+.change-dashboard-btn:hover { background: #f5f5f5; border-color: #999; }
+.dashboard-select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  background: white;
+  min-width: 100px;
+}
+
+/* ==================== DASHBOARD CONTENT ==================== */
+.dashboard-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==================== TOP STATS CARDS ==================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 15px;
+}
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
+.arrival-card { border-left-color: #9c27b0; background: linear-gradient(135deg, #fff 0%, #f3e5f5 100%); }
+.departure-card { border-left-color: #ff9800; background: linear-gradient(135deg, #fff 0%, #fff3e0 100%); }
+.booking-card { border-left-color: #e91e63; background: linear-gradient(135deg, #fff 0%, #fce4ec 100%); }
+.inhouse-card { border-left-color: #2196f3; background: linear-gradient(135deg, #fff 0%, #e3f2fd 100%); }
+.room-card { border-left-color: #d32f2f; background: linear-gradient(135deg, #fff 0%, #ffebee 100%); }
+.stat-icon { font-size: 42px; opacity: 0.9; }
+.stat-info { flex: 1; }
+.stat-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; }
+.stat-values { display: flex; flex-direction: column; gap: 4px; }
+.stat-row { font-size: 13px; color: #666; }
+.stat-number { font-size: 24px; font-weight: 700; color: #333; margin-top: 4px; }
+.stat-sublabel { font-size: 12px; color: #666; margin-top: 8px; }
+
+/* ==================== FINANCIAL CARDS ==================== */
+.financial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+.financial-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.financial-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
+.financial-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+  padding-bottom: 10px; border-bottom: 2px solid #f0f0f0;
+}
+.financial-icon { font-size: 24px; }
+.financial-title { font-size: 15px; font-weight: 600; color: #333; }
+.financial-content { display: flex; flex-direction: column; gap: 12px; }
+.financial-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+.financial-row.highlight { background: #f8f9fa; padding: 10px 15px; border-radius: 6px; margin: 0 -5px; }
+.financial-row .label { font-size: 13px; color: #666; }
+.financial-row .value { font-size: 16px; font-weight: 600; color: #333; }
+.badge-green { background: #4caf50; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+
+/* ==================== INVENTORY & OCCUPANCY ==================== */
+.inventory-occupancy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.panel { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; }
+.panel-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 15px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #dee2e6;
+}
+.panel-icon { font-size: 20px; }
+.panel-title { font-size: 15px; font-weight: 600; color: #333; flex: 1; }
+.badge-count { background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.panel-content { padding: 20px; }
+.inventory-table, .occupancy-table { width: 100%; border-collapse: collapse; }
+.inventory-table td, .occupancy-table td {
+  padding: 12px 0; font-size: 13px; color: #666; border-bottom: 1px solid #f0f0f0;
+}
+.inventory-table td:last-child, .occupancy-table td:last-child { border-bottom: none; }
+.text-right { text-align: right; font-weight: 600; color: #333; }
+
+.occupancy-content { display: flex; gap: 20px; }
+.occupancy-table { flex: 1; }
+.occupancy-gauge { width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; }
+.gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gauge-bg { fill: none; stroke: #f0f0f0; stroke-width: 8; }
+.gauge-fill { fill: none; stroke: #ffc107; stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray 1s ease; }
+.gauge-text { font-size: 28px; font-weight: 700; fill: #333; transform: rotate(90deg); transform-origin: 50% 50%; }
+
+/* ==================== BOOKING & COLLECTION ==================== */
+.booking-collection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.panel-tabs { display: flex; gap: 5px; margin-left: auto; }
+.tab-btn {
+  background: white; border: 1px solid #ddd; padding: 6px 16px; border-radius: 4px;
+  cursor: pointer; font-size: 12px; color: #666; transition: all 0.3s ease;
+}
+.tab-btn.active { background: #2196f3; color: white; border-color: #2196f3; }
+.tab-btn:hover:not(.active) { background: #f5f5f5; }
+.chart-placeholder { min-height: 200px; display: flex; align-items: center; justify-content: center; }
+.no-data { color: #999; font-size: 14px; }
+
+/* ==================== GUEST TABLE ==================== */
+.guest-table-panel { margin-top: 10px; }
+.table-tabs { display: flex; gap: 0; }
+.table-tab {
+  background: #e9ecef; border: none; padding: 12px 24px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: #666; transition: all 0.3s ease; border-bottom: 3px solid transparent;
+}
+.table-tab.active { background: #2196f3; color: white; border-bottom-color: #1565c0; }
+.table-tab:hover:not(.active) { background: #dee2e6; }
+.guest-table { width: 100%; border-collapse: collapse; }
+.guest-table thead { background: #f8f9fa; }
+.guest-table th {
+  padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #333; border-bottom: 2px solid #dee2e6;
+}
+.guest-table td { padding: 12px; font-size: 13px; color: #666; border-bottom: 1px solid #f0f0f0; }
+.no-data-row { text-align: center; padding: 40px !important; color: #999; font-style: italic; }
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1400px) {
+  .inventory-occupancy-grid, .booking-collection-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .financial-grid { grid-template-columns: 1fr; }
+  .topbar-right { flex-wrap: wrap; gap: 8px; }
+  .dashboard-content { padding: 15px; }
+  .occupancy-content { flex-direction: column; }
+  .occupancy-gauge { margin: 0 auto; }
+  
+  /* Mobile sidebar behavior */
+  .frontdesk-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+  }
+  
+  .frontdesk-sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  
+  .frontdesk-wrap {
+    margin-left: 0;
+  }
+  
+  .sidebar-toggle-btn {
+    position: fixed;
+    top: 70px;
+    left: 15px;
+  }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stat-card, .financial-card, .panel { animation: fadeInUp 0.5s ease forwards; }
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+.stat-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* ==================== UNIVERSAL / FLUID TWEAKS ==================== */
+:root {
+  --fs-12: clamp(11px, 0.75vw, 12px);
+  --fs-13: clamp(12px, 0.85vw, 13px);
+  --fs-14: clamp(12.5px, 0.95vw, 14px);
+  --fs-15: clamp(13px, 1.05vw, 15px);
+  --fs-16: clamp(13.5px, 1.15vw, 16px);
+  --space-6: clamp(4px, 0.6vw, 6px);
+  --space-8: clamp(6px, 0.8vw, 8px);
+  --space-10: clamp(8px, 1vw, 10px);
+  --space-12: clamp(10px, 1.2vw, 12px);
+  --space-15: clamp(12px, 1.4vw, 15px);
+  --radius-4: 4px;
+  --radius-6: 6px;
+  --radius-8: 8px;
+}
+
+.frontdesk-topbar { padding: var(--space-8) var(--space-15); min-height: 50px; }
+.welcome-text { font-size: var(--fs-16); }
+.topbar-right { gap: var(--space-10); font-size: var(--fs-12); }
+.admin-btn { padding: var(--space-6) var(--space-12); border-radius: var(--radius-4); font-size: var(--fs-13); }
+.icon-btn { width: 32px; height: 32px; border-radius: var(--radius-4); font-size: 16px; }
+.dashboard-control { padding: var(--space-12) var(--space-15); gap: var(--space-10); }
+.change-dashboard-btn, .dashboard-select { padding: var(--space-6) var(--space-12); font-size: var(--fs-13); }
+.dashboard-content { padding: 20px; gap: 20px; }
+.stat-label { font-size: var(--fs-14); }
+.stat-row, .financial-row .label { font-size: var(--fs-13); }
+.financial-title, .panel-title { font-size: var(--fs-15); }
+
+/* Tables become scrollable on small screens without breaking layout */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-responsive .guest-table, .table-responsive .inventory-table, .table-responsive .occupancy-table { min-width: 720px; }
+
+/* Improve touch targets on touch devices */
+@media (pointer: coarse) {
+  .icon-btn { width: 36px; height: 36px; }
+  .admin-btn, .change-dashboard-btn { padding: 8px 14px; }
+  .dashboard-select { padding: 8px 14px; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* Basic dark mode */
+@media (prefers-color-scheme: dark) {
+  .frontdesk-wrap { background: #0f1114; }
+  .dashboard-control { background: #121417; border-bottom-color: #1f232a; }
+  .dashboard-content { color: #e6e6e6; }
+  .stat-card, .financial-card, .panel { background: #15181e; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .stat-label, .financial-title, .panel-title, .text-right { color: #e9eef5; }
+  .stat-row, .financial-row .label, .guest-table td { color: #b5bcc6; }
+  .guest-table thead { background: #1a1f26; }
+  .guest-table th { border-bottom-color: #242b35; color: #e9eef5; }
+  .financial-row.highlight { background: #1a1f26; }
+  .panel-header { background: linear-gradient(135deg, #161a20 0%, #1b2129 100%); border-bottom-color: #232a34; }
+  .inventory-table td, .occupancy-table td, .guest-table td { border-bottom-color: #232a34; }
+  .change-dashboard-btn, .dashboard-select, .tab-btn { background: #11151a; border-color: #2a313b; color: #d3d9e2; }
+  .tab-btn.active { background: #2196f3; border-color: #2196f3; color: #fff; }
+  .sidebar-toggle-btn { background: rgba(26, 31, 38, 0.95); }
+  .sidebar-toggle-btn:hover { background: rgba(30, 41, 59, 0.95); }
+}
+
+/* EXTRA BREAKPOINTS */
+@media (min-width: 1536px) {
+  .stats-grid { grid-template-columns: repeat(5, 1fr); }
+  .financial-grid { grid-template-columns: repeat(3, 1fr); }
+  .inventory-occupancy-grid, .booking-collection-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .financial-grid { grid-template-columns: repeat(2, 1fr); }
+  .panel-content { padding: 16px; }
+}
+@media (max-width: 992px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .inventory-occupancy-grid, .booking-collection-grid { grid-template-columns: 1fr; }
+  .topbar-right { gap: 6px; }
+  .admin-btn { padding: 6px 10px; }
+}
+@media (max-width: 768px) {
+  .frontdesk-topbar { padding: 8px 12px; }
+  .welcome-text { font-size: var(--fs-15); }
+  .topbar-right { flex-wrap: wrap; gap: 6px; }
+  .dashboard-content { padding: 12px; gap: 14px; }
+  .stat-card, .financial-card { padding: 16px; }
+  .stat-icon { font-size: 36px; }
+  .stat-number { font-size: 22px; }
+  .occupancy-content { flex-direction: column; }
+  .occupancy-gauge { margin: 0 auto; }
+  .table-tabs .table-tab { padding: 10px 16px; font-size: var(--fs-13); }
+}
+@media (max-width: 576px) {
+  .frontdesk-topbar { min-height: 44px; }
+  .topbar-left, .topbar-right { width: 100%; }
+  .frontdesk-topbar { flex-wrap: wrap; row-gap: 6px; }
+  .topbar-right .branch-info, .topbar-right .session-info { display: none; }
+  .icon-btn { width: 34px; height: 34px; font-size: 15px; }
+  .stats-grid, .financial-grid { grid-template-columns: 1fr; }
+  .stat-card, .financial-card { padding: 14px; gap: 12px; }
+  .panel-header { padding: 12px; }
+  .panel-content { padding: 14px; }
+  .dashboard-control { justify-content: space-between; gap: 6px; }
+  .dashboard-select { min-width: 0; width: 48%; }
+  .change-dashboard-btn { width: 48%; }
+  .guest-table, .inventory-table, .occupancy-table { display: block; overflow-x: auto; }
+}
+@media (max-width: 480px) {
+  .welcome-text { font-size: var(--fs-14); }
+  .admin-btn { font-size: var(--fs-12); padding: 6px 10px; }
+  .tab-btn { padding: 6px 10px; font-size: var(--fs-12); }
+  .badge-count { padding: 2px 8px; font-size: 11px; }
+  .gauge-text { font-size: 22px; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .frontdesk-wrap { min-height: 100vh; }
+  .dashboard-content { padding-bottom: 80px; }
+}
+
+/* TABLE UTILITIES */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-responsive .guest-table, .table-responsive .inventory-table, .table-responsive .occupancy-table { min-width: 720px; }

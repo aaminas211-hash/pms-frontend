@@ -1,0 +1,209 @@
+/* src/components/topbar/Topbar.css */
+
+.topbar {
+  background: linear-gradient(135deg, #003d5c 0%, #0a5a7f 100%);
+  color: white;
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-height: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-welcome {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  letter-spacing: 0.3px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+}
+
+.topbar-info {
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.topbar-info:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.topbar-branch {
+  font-weight: 600;
+}
+
+.topbar-session {
+  font-family: 'Courier New', monospace;
+}
+
+.topbar-admin-btn {
+  background: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-admin-btn:hover {
+  background: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.topbar-admin-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.topbar-icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  position: relative;
+}
+
+.topbar-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.topbar-icon-btn:active {
+  transform: translateY(0);
+}
+
+/* Notification badge (optional - can be added dynamically) */
+.topbar-icon-btn.has-notification::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+  border: 2px solid #003d5c;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .topbar-right {
+    gap: 10px;
+  }
+  
+  .topbar-info {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar {
+    padding: 8px 15px;
+  }
+  
+  .topbar-welcome {
+    font-size: 14px;
+  }
+  
+  .topbar-right {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .topbar-info:not(.topbar-branch) {
+    display: none;
+  }
+  
+  .topbar-branch {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 15px;
+    min-height: auto;
+  }
+  
+  .topbar-left,
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .topbar-welcome {
+    font-size: 13px;
+  }
+  
+  .topbar-admin-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  
+  .topbar-icon-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+  .topbar {
+    background: linear-gradient(135deg, #001a2e 0%, #003d5c 100%);
+  }
+}
