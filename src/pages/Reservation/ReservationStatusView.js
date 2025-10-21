@@ -27,11 +27,9 @@ export default function ReservationStatusView() {
   const [q, setQ] = useState("");
   const [date, setDate] = useState(toYMD(new Date()));
   const [status, setStatus] = useState("ALL");
-
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [total, setTotal] = useState(0);
-
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
@@ -50,7 +48,6 @@ export default function ReservationStatusView() {
           limit,
         });
 
-        // GET /api/reservations/status-view?date=YYYY-MM-DD&status=...&q=&page=&limit=
         const res = await apiFetch(`/api/reservations/status-view?${params.toString()}`, { auth: true });
 
         const data = res?.data?.items || res?.items || res?.data || res || [];
@@ -83,7 +80,7 @@ export default function ReservationStatusView() {
     if (!q.trim()) return rows;
     const term = q.trim().toLowerCase();
     return rows.filter((r) =>
-      [r.reservationNo, r.status, r.guestName, r.roomNo, r.roomType, r.reservationMode, r.companyName]
+      [r.bookingNo, r.confirmationNo, r.guestName, r.mobile, r.roomInfo, r.status]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(term))
     );
@@ -99,170 +96,297 @@ export default function ReservationStatusView() {
 
       {/* ===== Content ===== */}
       <div className="res-wrap">
-        {/* Topbar controls */}
-        <div className="res-topbar">
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button
-              type="button"
-              className="btn"
-              onClick={openSidebar}
-              aria-label="Open menu"
-              style={{ padding: ".45rem .6rem" }}
-            >
-              ?
-            </button>
-            <h2 style={{ margin: 0 }}>Reservation Status View</h2>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <input
-              className="res-select"
-              type="date"
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-                setPage(1);
-              }}
-              title="Business date"
-            />
-            <select
-              className="res-select"
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPage(1);
-              }}
-              title="Status"
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {labelize(s)}
-                </option>
-              ))}
-            </select>
-            <input
-              className="res-select"
-              placeholder="Search (guest / code / room)"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setPage(1);
-              }}
-              style={{ minWidth: 280 }}
-            />
-            <select
-              className="res-select"
-              value={limit}
-              onChange={(e) => {
-                setLimit(Number(e.target.value));
-                setPage(1);
-              }}
-              title="Rows per page"
-            >
-              {[10, 20, 50, 100].map((n) => (
-                <option key={n} value={n}>
-                  {n}/page
-                </option>
-              ))}
-            </select>
+        {/* Header */}
+        <div style={{ 
+          backgroundColor: "#fff", 
+          padding: "15px 20px", 
+          borderRadius: "8px", 
+          marginBottom: "20px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button
+                type="button"
+                className="btn"
+                onClick={openSidebar}
+                aria-label="Open menu"
+                style={{ padding: ".45rem .6rem" }}
+              >
+                â˜°
+              </button>
+              <h2 style={{ margin: 0, color: "#333", fontSize: "20px" }}>Reservation Status View</h2>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <button style={btnStyle("#4CAF50")}>Search</button>
+              <button style={btnStyle("#2196F3")}>Save</button>
+              <button style={btnStyle("#FF9800")}>Excel</button>
+            </div>
           </div>
         </div>
 
-        {/* Summary */}
-        <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-          <KPI label="Booked" value={summary.booked} />
-          <KPI label="Confirmed" value={summary.confirmed} />
-          <KPI label="Checked In" value={summary.checkedIn} />
-          <KPI label="Checked Out" value={summary.checkedOut} />
-          <KPI label="Cancelled" value={summary.cancelled} />
-          <KPI label="No Show" value={summary.noShow} />
-          <KPI label="Total" value={summary.total ?? total} />
+        {/* Filters */}
+        <div style={{ 
+          backgroundColor: "#fff", 
+          padding: "20px", 
+          borderRadius: "8px", 
+          marginBottom: "20px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+        }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px" }}>
+            <div>
+              <label style={labelStyle}>Booking No.</label>
+              <input type="text" placeholder="Booking Number" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Guest Name / Mob No.</label>
+              <input 
+                type="text" 
+                placeholder="Guest Name or Mobile" 
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setPage(1);
+                }}
+                style={inputStyle} 
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Email Id</label>
+              <input type="email" placeholder="Email Address" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>From</label>
+              <input 
+                type="date" 
+                value={date}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setPage(1);
+                }}
+                style={inputStyle} 
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>To</label>
+              <input type="date" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Guest Type</label>
+              <select style={inputStyle}>
+                <option>GuestType</option>
+                <option>Individual</option>
+                <option>Corporate</option>
+                <option>Group</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Sales Representative By</label>
+              <select style={inputStyle}>
+                <option>Sales Representative By</option>
+                <option>Rep 1</option>
+                <option>Rep 2</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Company</label>
+              <select style={inputStyle}>
+                <option>Select Company</option>
+                <option>Company A</option>
+                <option>Company B</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Booked By</label>
+              <select style={inputStyle}>
+                <option>Select Booked By</option>
+                <option>User 1</option>
+                <option>User 2</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Adv. Booking (Status)</label>
+              <select 
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
+                style={inputStyle}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {labelize(s)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Confirmation Voucher No.</label>
+              <input type="text" placeholder="Voucher Number" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Business Market</label>
+              <select style={inputStyle}>
+                <option>Select Source</option>
+                <option>Direct</option>
+                <option>Online</option>
+                <option>Agent</option>
+              </select>
+            </div>
+          </div>
         </div>
+
+        {/* Summary Cards */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", 
+          gap: "15px",
+          marginBottom: "20px"
+        }}>
+          <KPI label="Booked" value={summary.booked} color="#2196F3" />
+          <KPI label="Confirmed" value={summary.confirmed} color="#4CAF50" />
+          <KPI label="Checked In" value={summary.checkedIn} color="#FF9800" />
+          <KPI label="Checked Out" value={summary.checkedOut} color="#9C27B0" />
+          <KPI label="Cancelled" value={summary.cancelled} color="#F44336" />
+          <KPI label="No Show" value={summary.noShow} color="#607D8B" />
+          <KPI label="Total" value={summary.total ?? total} color="#000" />
+        </div>
+
+        {/* Error Message */}
+        {err && (
+          <div style={{ 
+            backgroundColor: "#ffebee", 
+            color: "#c62828", 
+            padding: "12px", 
+            borderRadius: "6px", 
+            marginBottom: "20px",
+            fontWeight: "500"
+          }}>
+            {err}
+          </div>
+        )}
 
         {/* Table */}
-        <div className="panel" style={{ marginTop: 12 }}>
+        <div className="panel">
           <div className="panel-h">
             <span>
-              Reservations – {fmtYMD(date)} {status !== "ALL" ? `• ${labelize(status)}` : ""}
+              Reservations â€¢ {fmtYMD(date)} {status !== "ALL" ? `â€¢ ${labelize(status)}` : ""}
             </span>
             <span className="small" style={{ color: "var(--muted)" }}>
-              {loading ? "Loading…" : `Total: ${total || dataToRender.length}`}
+              {loading ? "Loadingâ€¦" : `Total: ${total || dataToRender.length}`}
             </span>
           </div>
           <div className="panel-b">
-            {err && <Banner type="err">{err}</Banner>}
-
             <div className="table-wrap">
               <table className="table">
                 <thead>
                   <tr>
-                    <th>Res #</th>
-                    <th>Guest</th>
+                    <th>S.No</th>
+                    <th>Booking/Confirm No.</th>
+                    <th>Guest Name</th>
+                    <th>No. of Rooms</th>
+                    <th>No. of Days</th>
+                    <th>Room Information</th>
+                    <th>Arrival Date / Departure Date</th>
+                    <th>Room Charges</th>
+                    <th>Service Amount</th>
+                    <th>Total Amount</th>
+                    <th>Advance Amount</th>
+                    <th>Paidup Amt.</th>
+                    <th>Debit Balance</th>
+                    <th>Credit Balance</th>
+                    <th>Retention Charge</th>
+                    <th>Bill No.</th>
                     <th>Status</th>
-                    <th>Room Type</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Nights</th>
-                    <th>Mode</th>
-                    <th>Amount</th>
-                    <th>Created</th>
+                    <th>User Name</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(!dataToRender || dataToRender.length === 0) && !loading && (
-                    <tr className="no-rows">
-                      <td colSpan={10}>No reservations</td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={18} style={{ textAlign: "center", padding: "40px", color: "#999" }}>
+                        Loading...
+                      </td>
                     </tr>
+                  ) : (!dataToRender || dataToRender.length === 0) ? (
+                    <tr className="no-rows">
+                      <td colSpan={18}>No reservations found</td>
+                    </tr>
+                  ) : (
+                    dataToRender.map((r, idx) => {
+                      const id = r._id || r.id || r.bookingNo;
+                      return (
+                        <tr key={id}>
+                          <td>{(page - 1) * limit + idx + 1}</td>
+                          <td>
+                            <div style={{ fontWeight: 700 }}>{r.bookingNo || r.reservationNo || "â€”"}</div>
+                            <div className="small" style={{ color: "var(--muted)" }}>
+                              {r.confirmationNo || ""}
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ fontWeight: 700 }}>{r.guestName || "â€”"}</div>
+                            <div className="small" style={{ color: "var(--muted)" }}>
+                              {r.mobile || r.email || ""}
+                            </div>
+                          </td>
+                          <td>{r.noOfRooms || r.rooms || 0}</td>
+                          <td>{r.noOfDays || r.nights || diffNights(r.checkIn || r.arrivalDate, r.checkOut || r.departureDate)}</td>
+                          <td>{r.roomInfo || r.roomType || "â€”"}</td>
+                          <td>
+                            <div>{fmtDate(r.arrivalDate || r.checkIn)}</div>
+                            <div>{fmtDate(r.departureDate || r.checkOut)}</div>
+                          </td>
+                          <td style={{ textAlign: "right" }}>â‚¹{fmtMoney(r.roomCharges || 0)}</td>
+                          <td style={{ textAlign: "right" }}>â‚¹{fmtMoney(r.serviceAmount || 0)}</td>
+                          <td style={{ textAlign: "right", fontWeight: 700 }}>â‚¹{fmtMoney(r.totalAmount || r.amount || 0)}</td>
+                          <td style={{ textAlign: "right" }}>â‚¹{fmtMoney(r.advanceAmount || 0)}</td>
+                          <td style={{ textAlign: "right" }}>â‚¹{fmtMoney(r.paidupAmount || 0)}</td>
+                          <td style={{ textAlign: "right", color: (r.debitBalance || 0) > 0 ? "#d32f2f" : "inherit" }}>
+                            â‚¹{fmtMoney(r.debitBalance || 0)}
+                          </td>
+                          <td style={{ textAlign: "right", color: (r.creditBalance || 0) > 0 ? "#388e3c" : "inherit" }}>
+                            â‚¹{fmtMoney(r.creditBalance || 0)}
+                          </td>
+                          <td style={{ textAlign: "right" }}>â‚¹{fmtMoney(r.retentionCharge || 0)}</td>
+                          <td>{r.billNo || "â€”"}</td>
+                          <td>
+                            <StatusPill value={r.status} />
+                          </td>
+                          <td>{r.userName || r.createdBy || "â€”"}</td>
+                        </tr>
+                      );
+                    })
                   )}
-
-                  {dataToRender?.map((r) => {
-                    const id = r._id || r.id || r.reservationNo;
-                    return (
-                      <tr key={id}>
-                        <td>{r.reservationNo || "–"}</td>
-                        <td title={r.email || ""}>
-                          <div style={{ fontWeight: 700 }}>{r.guestName || "–"}</div>
-                          <div className="small" style={{ color: "var(--muted)" }}>
-                            {r.adults ?? 0}A
-                            {r.children ? ` • ${r.children}C` : ""}
-                            {r.companyName ? ` • ${r.companyName}` : ""}
-                          </div>
-                        </td>
-                        <td>
-                          <StatusPill value={r.status} />
-                        </td>
-                        <td>{r.roomType || "–"}</td>
-                        <td>{fmtDate(r.checkIn)}</td>
-                        <td>{fmtDate(r.checkOut)}</td>
-                        <td>{r.nights ?? diffNights(r.checkIn, r.checkOut)}</td>
-                        <td>{r.reservationMode || "–"}</td>
-                        <td style={{ textAlign: "right", fontWeight: 700 }}>?{fmtMoney(r.amount)}</td>
-                        <td>{fmtDate(r.createdAt)}</td>
-                      </tr>
-                    );
-                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 8 }}>
-              <button
-                className="btn"
-                disabled={page <= 1 || loading}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                ‹ Prev
-              </button>
-              <span className="small" style={{ alignSelf: "center", color: "var(--muted)" }}>
-                Page {page}
-              </span>
-              <button
-                className="btn"
-                disabled={loading || (total ? page * limit >= total : dataToRender.length < limit)}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next ›
-              </button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+              <div className="small" style={{ color: "var(--muted)" }}>
+                Showing {dataToRender.length ? (page - 1) * limit + 1 : 0} to {Math.min(page * limit, total || dataToRender.length)} of {total || dataToRender.length} entries
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  className="btn"
+                  disabled={page <= 1 || loading}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Â« Prev
+                </button>
+                <span className="small" style={{ alignSelf: "center", color: "var(--muted)" }}>
+                  Page {page}
+                </span>
+                <button
+                  className="btn"
+                  disabled={loading || (total ? page * limit >= total : dataToRender.length < limit)}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Next Â»
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -271,21 +395,21 @@ export default function ReservationStatusView() {
   );
 }
 
-/* ---------- Small UI bits ---------- */
-function KPI({ label, value }) {
+/* ---------- UI Components ---------- */
+function KPI({ label, value, color }) {
   return (
-    <div className="kpi-card">
-      <div className="kpi-icon">??</div>
+    <div className="kpi-card" style={{ borderLeft: `4px solid ${color}` }}>
+      <div className="kpi-icon">ðŸ“Š</div>
       <div>
         <div className="kpi-title">{label}</div>
-        <div className="kpi-number">{value ?? 0}</div>
+        <div className="kpi-number" style={{ color }}>{value ?? 0}</div>
       </div>
     </div>
   );
 }
 
 function StatusPill({ value }) {
-  const v = String(value || "–").toUpperCase();
+  const v = String(value || "â€”").toUpperCase();
   const map = {
     BOOKED: { bg: "#eff6ff", br: "#bfdbfe", fg: "#1e40af" },
     CONFIRMED: { bg: "#ecfdf5", br: "#a7f3d0", fg: "#166534" },
@@ -313,17 +437,36 @@ function StatusPill({ value }) {
   );
 }
 
-function Banner({ type = "ok", children }) {
-  const style =
-    type === "err"
-      ? { background: "#fef2f2", color: "#991b1b", border: "1px solid #fecaca" }
-      : { background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" };
-  return (
-    <div style={{ ...style, padding: "8px 10px", borderRadius: 10, fontWeight: 700, marginBottom: 10 }}>
-      {children}
-    </div>
-  );
-}
+/* ---------- Button Styles ---------- */
+const btnStyle = (bg) => ({
+  padding: "8px 20px",
+  backgroundColor: bg,
+  color: "#fff",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer",
+  fontSize: "14px",
+  fontWeight: "500",
+  transition: "opacity 0.2s"
+});
+
+const labelStyle = {
+  display: "block",
+  fontSize: "12px",
+  fontWeight: "500",
+  color: "#555",
+  marginBottom: "6px"
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "8px 12px",
+  border: "1px solid #ddd",
+  borderRadius: "6px",
+  fontSize: "13px",
+  outline: "none",
+  transition: "border-color 0.2s"
+};
 
 /* ---------- Helpers ---------- */
 function labelize(s) {
@@ -332,37 +475,43 @@ function labelize(s) {
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
 function toYMD(d) {
   const dt = d instanceof Date ? d : new Date(d);
-  if (Number.isNaN(dt)) return "";
+  if (Number.isNaN(dt.valueOf())) return "";
   const m = `${dt.getMonth() + 1}`.padStart(2, "0");
   const day = `${dt.getDate()}`.padStart(2, "0");
   return `${dt.getFullYear()}-${m}-${day}`;
 }
+
 function fmtYMD(s) {
   try {
     const dt = new Date(s);
     return dt.toLocaleDateString();
   } catch {
-    return s || "–";
+    return s || "â€”";
   }
 }
+
 function fmtDate(d) {
-  if (!d) return "–";
+  if (!d) return "â€”";
   const dt = new Date(d);
-  return Number.isNaN(dt) ? "–" : dt.toLocaleDateString();
+  return Number.isNaN(dt.valueOf()) ? "â€”" : dt.toLocaleDateString();
 }
+
 function fmtMoney(n) {
   const v = Number(n);
-  if (!Number.isFinite(v)) return "–";
+  if (!Number.isFinite(v)) return "0";
   return v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
+
 function diffNights(a, b) {
   const A = new Date(a),
     B = new Date(b);
-  if (Number.isNaN(A) || Number.isNaN(B)) return 0;
+  if (Number.isNaN(A.valueOf()) || Number.isNaN(B.valueOf())) return 0;
   return Math.max(0, Math.round((B - A) / (1000 * 60 * 60 * 24)));
 }
+
 function isPlainObj(o) {
   return !!o && typeof o === "object" && !Array.isArray(o);
 }
