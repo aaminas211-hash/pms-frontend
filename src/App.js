@@ -967,7 +967,7 @@ export default function App() {
    
         {/* Frontoffice */}
         <Route
-          path="/Reservation/frontoffice/PreRegCard"
+          path="/Reservation/frontdesk/PreRegCard"
           element={
             <ProtectedRoute>
               <PreRegCard />
@@ -975,7 +975,7 @@ export default function App() {
           }
         />
         <Route
-          path="/Reservation/frontoffice/CheckinGuest"
+          path="/Reservation/frontdesk/CheckInGuest"
           element={
             <ProtectedRoute>
               <CheckInGuest />

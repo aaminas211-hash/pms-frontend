@@ -146,8 +146,16 @@ export default function PreRegCard() {
         <head>
           <title>Pre-Registration Card</title>
           <style>
-            body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color: #111; }
-            .card { padding: 20px; }
+            body { 
+              font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; 
+              color: #111; 
+              background-color: #D6EAF8; 
+            }
+            .card { 
+              padding: 20px; 
+              background-color: #D6EAF8; 
+              border-radius: 8px; 
+            }
             .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .row { display:flex; gap:8px; }
             .lbl { font-weight:700; min-width:150px; }
@@ -327,7 +335,7 @@ export default function PreRegCard() {
           <div className="panel-h">Print Preview</div>
           <div className="panel-b">
             <div ref={printRef}>
-              <div className="card">
+              <div className="card" style={{ backgroundColor: "#D6EAF8", borderRadius: 8, padding: 20 }}>
                 <div className="h">{hotelTitle}</div>
                 <div className="sub">Pre-Registration Card</div>
 
