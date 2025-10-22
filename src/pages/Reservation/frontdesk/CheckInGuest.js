@@ -150,6 +150,7 @@ export default function CheckInGuest() {
             .card { padding: 20px; }
             .h { font-weight:900; font-size: 1.1rem; margin: 0 0 10px; text-align:center; }
             .sub { text-align:center; color:#555; margin-bottom: 14px; }
+            .data-box { background-color: #D6EAF8; padding: 16px; border-radius: 8px; }
             table { width:100%; border-collapse: collapse; }
             td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
             .lbl { width: 220px; font-weight: 700; }
@@ -341,7 +342,7 @@ export default function CheckInGuest() {
           <div className="panel-h">Check-in Slip Preview</div>
           <div className="panel-b">
             <div ref={printRef}>
-              <div className="card">
+              <div className="card" style={{ backgroundColor: "#D6EAF8", padding: "20px", borderRadius: "8px" }}>
                 <div className="h">{hotelTitle}</div>
                 <div className="sub">Guest Check-in Slip</div>
                 <table>
