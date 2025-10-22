@@ -204,7 +204,7 @@ export default function DirectCheckInGuest() {
             .h { font-weight:900; font-size: 1.1rem; margin: 0 0 10px; text-align:center; }
             .sub { text-align:center; color:#555; margin-bottom: 14px; }
             table { width:100%; border-collapse: collapse; }
-            td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+            td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; background-color: #D6EAF8; }
             .lbl { width: 220px; font-weight: 700; }
             .sign { margin-top: 34px; display:flex; justify-content:space-between; }
             .line { margin-top: 42px; border-top:1px dashed #999; width:240px; text-align:center; padding-top:6px; }
@@ -386,7 +386,7 @@ export default function DirectCheckInGuest() {
           <div className="panel-h">Check-in Slip Preview</div>
           <div className="panel-b">
             <div ref={printRef}>
-              <div className="card">
+              <div className="card" style={{ backgroundColor: '#D6EAF8' }}>
                 <div className="h">{hotelTitle}</div>
                 <div className="sub">Direct Check-in Slip</div>
                 <table>
@@ -412,7 +412,7 @@ export default function DirectCheckInGuest() {
                   <div className="line">Guest Signature</div>
                   <div className="line">Front Office</div>
                 </div>
-                <div className="muted" style={{ marginTop: 10 }}>
+                <div className="muted" style={{ marginTop: 10, backgroundColor: '#D6EAF8', padding: '10px', borderRadius: '5px' }}>
                   I/we acknowledge receipt of room keys and agree to hotel policies, including ID verification and settlement of dues.
                 </div>
               </div>
