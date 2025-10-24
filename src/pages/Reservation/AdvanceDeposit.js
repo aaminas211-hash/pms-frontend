@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../lib/api";
-import ReservationSidebar, { BackofficeSidebar } from "../../components/sidebar/ReservationSidebar";
+import ReservationSidebar from "../../components/sidebar/ReservationSidebar";
 import "../../components/sidebar/Sidebar.css";
 import "../../assets/css/commanPage.css";
 
@@ -13,7 +13,7 @@ export default function AdvanceDeposit() {
   const [from, setFrom] = useState(""); // YYYY-MM-DD
   const [to, setTo] = useState("");     // YYYY-MM-DD
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(PAGE_SIZE);
+  const [limit] = useState(PAGE_SIZE);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -23,7 +23,7 @@ export default function AdvanceDeposit() {
   const [showDelete, setShowDelete] = useState(false);
   const [toDelete, setToDelete] = useState(null);
 
-  // Load list
+  // Load list (with fallback demo row)
   useEffect(() => {
     let ignore = false;
     (async () => {
@@ -35,16 +35,45 @@ export default function AdvanceDeposit() {
         if (from) params.set("from", from);
         if (to) params.set("to", to);
 
-        const res = await apiFetch(`/api/advance-deposits?${params.toString()}`, { auth: true });
-        const data = res?.data || res?.items || res || [];
-        const count = res?.total ?? data.length ?? 0;
+        let res, data, count;
+        try {
+          res = await apiFetch(`/api/advance-deposits?${params.toString()}`, { auth: true });
+          data = res?.data || res?.items || res || [];
+          count = res?.total ?? data.length ?? 0;
+        } catch (e) {
+          // Fallback to mock data if API fails (for dev/testing)
+          data = [
+            {
+              _id: "demo123",
+              date: "2025-10-24",
+              bookingCode: "ABC123",
+              guestName: "John Doe",
+              mobile: "9876543210",
+              method: "CASH",
+              amount: 10000,
+              currency: "INR",
+              reference: "TXN001",
+              notes: "Demo advance payment",
+              isRefunded: false,
+              propertyCode: "PROP01",
+              createdAt: "2025-10-24T10:00:00Z",
+              updatedAt: "2025-10-24T10:01:00Z"
+            }
+          ];
+          count = data.length;
+          setErr("API not available, showing demo data.");
+        }
 
         if (!ignore) {
           setRows(Array.isArray(data) ? data : []);
           setTotal(Number(count) || 0);
         }
       } catch (e) {
-        if (!ignore) { setErr(e?.message || "Failed to load advance deposits."); setRows([]); setTotal(0); }
+        if (!ignore) {
+          setErr(e?.message || "Failed to load advance deposits.");
+          setRows([]);
+          setTotal(0);
+        }
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -84,7 +113,7 @@ export default function AdvanceDeposit() {
     setTotal(t => Math.max(0, t - 1));
   };
 
-  // KPIs
+  // KPI Calculations
   const kpis = useMemo(() => {
     const list = dataToRender || [];
     const sum = list.reduce((n, x) => n + (Number(x.amount) || 0), 0);
@@ -97,31 +126,113 @@ export default function AdvanceDeposit() {
       <ReservationSidebar/>
 
       <div className="res-wrap">
-        {/* Topbar */}
-        <div className="res-topbar">
-          <h2 style={{ margin: 0 }}>Advance Deposits</h2>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+
+        {/* FILTER BAR - Modern look */}
+        <div
+          className="filter-bar"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "18px",
+            alignItems: "center",
+            margin: "36px 0 32px 0",
+            background: "#f9fafb",
+            borderRadius: "14px",
+            padding: "26px 24px",
+            boxShadow: "0 1px 5px rgba(60,100,180,0.06)",
+            border: "1px solid #e5e7eb"
+          }}
+        >
+          <div style={{ flex: "1 1 340px", minWidth: "240px" }}>
             <input
-              className="res-select"
-              placeholder="Search (guest / booking / method / ref / note)"
+              className="filter-input"
+              style={{
+                width: "100%", fontSize: "1.14rem", borderRadius: "8px", border: "1px solid #cbd5e1",
+                outline: "none", padding: "11px 18px", fontWeight: 500, background: "#fff"
+              }}
+              placeholder="Search guest, booking, method, ref, note"
               value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1); }}
-              style={{ minWidth: 320 }}
+              onChange={e => { setQ(e.target.value); setPage(1); }}
             />
-            <input className="res-select" type="date" value={from} onChange={e => { setFrom(e.target.value); setPage(1); }} title="From date" />
-            <input className="res-select" type="date" value={to}   onChange={e => { setTo(e.target.value); setPage(1); }} title="To date" />
-            <select className="res-select" value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
-              {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n}/page</option>)}
-            </select>
-            <button className="btn" onClick={openCreate}>+ Add Deposit</button>
+          </div>
+          <div style={{ flex: "0 1 170px", minWidth: "140px" }}>
+            <input
+              className="filter-input"
+              type="date"
+              value={from}
+              onChange={e => { setFrom(e.target.value); setPage(1); }}
+              placeholder="Check In"
+              style={{
+                width: "100%", padding: "11px 0 11px 18px", borderRadius: "8px",
+                border: "1px solid #cbd5e1", background: "#fff", fontSize: "1.07rem", fontWeight: 500
+              }}
+              title="Check In"
+            />
+          </div>
+          <div style={{ flex: "0 1 170px", minWidth: "140px" }}>
+            <input
+              className="filter-input"
+              type="date"
+              value={to}
+              onChange={e => { setTo(e.target.value); setPage(1); }}
+              placeholder="Check Out"
+              style={{
+                width: "100%", padding: "11px 0 11px 18px", borderRadius: "8px",
+                border: "1px solid #cbd5e1", background: "#fff", fontSize: "1.07rem", fontWeight: 500
+              }}
+              title="Check Out"
+            />
+          </div>
+          <div style={{ flex: "0 0 auto" }}>
+            <button
+              className="btn"
+              style={{
+                fontWeight: 700, fontSize: "1.08rem", borderRadius: "8px", padding: "10px 18px",
+                background: "#2563eb", color: "#fff", border: "none", boxShadow: "0 1px 2px #94a3b85b"
+              }}
+              onClick={openCreate}
+            >
+              + Add Deposit
+            </button>
           </div>
         </div>
 
-        {/* KPIs */}
-        <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-          <KPI label="Records" value={kpis.count} icon="🧾" />
-          <KPI label="Total Amount" value={fmtMoney(kpis.totalAmt)} icon="💰" />
-          <KPI label="Refunded (count)" value={kpis.refunded} icon="↩️" />
+        {/* KPI GRID */}
+        <div
+          className="kpi-grid"
+          style={{
+            display: "flex",
+            gap: "28px",
+            margin: "32px 0",
+            padding: "24px 20px",
+            background: "linear-gradient(90deg, #F3F4F6 70%, #E0E7FF 140%)",
+            borderRadius: "16px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            justifyContent: "start",
+            alignItems: "center"
+          }}
+        >
+          <KPI
+            label="Records"
+            value={kpis.count}
+            icon="🧾"
+            accent="#6366f1"
+            subtitle="Total rows"
+          />
+          <KPI
+            label="Total Amount"
+            value={fmtMoney(kpis.totalAmt)}
+            icon="💰"
+            accent="#f59e42"
+            subtitle="All advance deposits"
+          />
+          <KPI
+            label="Refunded"
+            value={kpis.refunded}
+            icon="↩️"
+            accent="#38b883"
+            subtitle="Count"
+          />
         </div>
 
         {/* Table */}
@@ -156,7 +267,6 @@ export default function AdvanceDeposit() {
                   {(!dataToRender || dataToRender.length === 0) && !loading && (
                     <tr className="no-rows"><td colSpan={11}>No advance deposits found</td></tr>
                   )}
-
                   {dataToRender?.map(r => {
                     const id = r._id || r.id;
                     return (
@@ -181,7 +291,6 @@ export default function AdvanceDeposit() {
                 </tbody>
               </table>
             </div>
-
             {/* Pagination */}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 8 }}>
               <button className="btn" disabled={page <= 1 || loading} onClick={() => setPage(p => Math.max(1, p - 1))}>
@@ -227,7 +336,8 @@ export default function AdvanceDeposit() {
   );
 }
 
-/* ---------- Form Modal ---------- */
+/* ---------- All helper components and styles: KPI, DepositFormModal, Row, Field, etc. ---------- */
+
 function DepositFormModal({ initial, onClose, onSaved }) {
   const isEdit = !!initial;
   const [saving, setSaving] = useState(false);
@@ -244,7 +354,7 @@ function DepositFormModal({ initial, onClose, onSaved }) {
   const [reference, setReference] = useState(initial?.reference || "");
   const [notes, setNotes] = useState(initial?.notes || "");
   const [isRefunded, setIsRefunded] = useState(initial?.isRefunded ?? false);
-  const [propertyCode, setPropertyCode] = useState(initial?.propertyCode || ""); // optional
+  const [propertyCode, setPropertyCode] = useState(initial?.propertyCode || "");
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -306,7 +416,6 @@ function DepositFormModal({ initial, onClose, onSaved }) {
             <input className="input" value={currency} onChange={e => setCurrency(e.target.value)} />
           </Field>
         </Row>
-
         <Row>
           <Field label="Method">
             <select className="res-select" value={method} onChange={e => setMethod(e.target.value)}>
@@ -320,7 +429,6 @@ function DepositFormModal({ initial, onClose, onSaved }) {
             <input className="input" placeholder="If you use property scope" value={propertyCode} onChange={e => setPropertyCode(e.target.value)} />
           </Field>
         </Row>
-
         <Row>
           <Field label="Booking #">
             <input className="input" value={bookingCode} onChange={e => setBookingCode(e.target.value)} />
@@ -332,7 +440,6 @@ function DepositFormModal({ initial, onClose, onSaved }) {
             <input className="input" value={mobile} onChange={e => setMobile(e.target.value)} />
           </Field>
         </Row>
-
         <Row>
           <Field label="Notes">
             <textarea className="input" rows={2} placeholder="Optional" value={notes} onChange={e => setNotes(e.target.value)} />
@@ -344,7 +451,6 @@ function DepositFormModal({ initial, onClose, onSaved }) {
             </label>
           </Field>
         </Row>
-
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button type="button" className="btn" onClick={onClose}>Cancel</button>
           <button type="submit" className="btn" disabled={saving}>
@@ -356,14 +462,47 @@ function DepositFormModal({ initial, onClose, onSaved }) {
   );
 }
 
-/* ---------- Tiny UI helpers ---------- */
-function KPI({ label, value, icon = "📌" }) {
+function KPI({ label, value, icon, accent = "#2563eb", subtitle }) {
   return (
-    <div className="kpi-card">
-      <div className="kpi-icon">{icon}</div>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 18,
+        background: "#fff",
+        borderRadius: "10px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
+        padding: "14px 22px",
+        minWidth: 140,
+        flex: "1 1 0",
+      }}
+    >
+      <span
+        style={{
+          fontSize: "2.5rem",
+          background: accent,
+          borderRadius: "8px",
+          color: "#fff",
+          width: 48,
+          height: 48,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 0 8px " + accent + "22"
+        }}
+      >
+        {icon}
+      </span>
       <div>
-        <div className="kpi-title">{label}</div>
-        <div className="kpi-number">{value ?? 0}</div>
+        <div style={{ fontSize: "1.01rem", fontWeight: 700, color: "#334155" }}>
+          {label}
+        </div>
+        <div style={{ fontSize: "1.35rem", fontWeight: 800, lineHeight: 1.2, color: accent }}>
+          {value ?? 0}
+        </div>
+        <div style={{ fontSize: ".9rem", color: "#6b7280", fontWeight: 500, marginTop: 2 }}>
+          {subtitle}
+        </div>
       </div>
     </div>
   );
@@ -430,8 +569,6 @@ function OnOff({ value }) {
     </span>
   );
 }
-
-/* ---------- date/money helpers & styles ---------- */
 function toYMD(d) {
   const dt = d instanceof Date ? d : new Date(d);
   if (Number.isNaN(dt)) return "";
@@ -444,7 +581,6 @@ function fmtMoney(n) {
   const v = Number(n || 0);
   return v.toLocaleString(undefined, { style: "currency", currency: "INR", maximumFractionDigits: 2, minimumFractionDigits: 2 });
 }
-
 const btnSm = { padding: ".3rem .5rem", marginRight: 4, fontWeight: 700 };
 const backdropStyle = { position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", display: "grid", placeItems: "center", zIndex: 1000 };
 const modalStyle = { width: "min(900px, calc(100% - 24px))", background: "#fff", borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,.22)", overflow: "hidden" };
